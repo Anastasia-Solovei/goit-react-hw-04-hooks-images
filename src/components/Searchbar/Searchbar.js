@@ -1,11 +1,11 @@
 import { useState } from "react";
-// import { toast } from "react-toastify";
-// import PropTypes from "prop-types";
+import { toast } from "react-toastify";
+import PropTypes from "prop-types";
 
-// import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/dist/ReactToastify.css";
 import s from "./Searchbar.module.css";
 
-export default function Searchbar() {
+export default function Searchbar({ onSubmit }) {
   const [input, setInput] = useState("");
 
   const handleInputChange = (e) => {
@@ -14,12 +14,25 @@ export default function Searchbar() {
     setInput(value);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (input.trim() === "") {
+      toast.error("Please, enter your query!");
+      return;
+    }
+
+    onSubmit(input);
+    reset();
+  };
+
+  const reset = () => {
+    setInput("");
+  };
+
   return (
     <header className={s.Searchbar}>
-      <form
-        className={s.SearchForm}
-        //onSubmit={handleSubmit}
-      >
+      <form className={s.SearchForm} onSubmit={handleSubmit}>
         <button type="submit" className={s.SearchFormButton}>
           <span className={s.SearchFormButtonLabel}>Search</span>
         </button>
@@ -37,3 +50,7 @@ export default function Searchbar() {
     </header>
   );
 }
+
+Searchbar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
