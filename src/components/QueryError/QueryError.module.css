@@ -1,0 +1,10 @@
+.QueryError {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 700;
+  font-size: 30px;
+  text-align: center;
+  color: #a9a9a9;
+}
