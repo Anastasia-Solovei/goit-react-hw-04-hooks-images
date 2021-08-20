@@ -11,7 +11,7 @@ export default function Searchbar({ onSubmit }) {
   const handleInputChange = (e) => {
     const { value } = e.target;
 
-    setInput(value);
+    setInput(value.toLowerCase());
   };
 
   const handleSubmit = (e) => {
@@ -23,10 +23,6 @@ export default function Searchbar({ onSubmit }) {
     }
 
     onSubmit(input);
-    reset();
-  };
-
-  const reset = () => {
     setInput("");
   };
 
