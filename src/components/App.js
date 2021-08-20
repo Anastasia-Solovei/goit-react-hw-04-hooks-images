@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import imageGalleryApi from "../services/image-gallery-api";
 
@@ -19,14 +19,7 @@ export default function App() {
   const [modalImg, setModalImg] = useState("");
   const [status, setStatus] = useState("idle");
 
-  const isFirstRender = useRef(true);
-
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
     if (query === "") {
       return;
     }
