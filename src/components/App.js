@@ -1,154 +1,120 @@
-import React, { Component } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ToastContainer } from "react-toastify";
 import imageGalleryApi from "../services/image-gallery-api";
 
 import Searchbar from "./Searchbar";
-// import ImageGallery from "./ImageGallery";
-// import GalleryLoader from "./GalleryLoader";
-// import QueryError from "./QueryError";
+import ImageGallery from "./ImageGallery";
+import GalleryLoader from "./GalleryLoader";
+import QueryError from "./QueryError";
 import Modal from "./Modal";
-// import Button from "./Button";
+import Button from "./Button";
 
-class App extends Component {
-  state = {
-    query: "",
-    status: "idle",
-    page: 1,
-    images: [],
-    showLoadMore: false,
-    showModal: false,
-    error: null,
-    modalImgUrl: "",
+export default function App() {
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState("");
+  const [images, setImages] = useState([]);
+  const [loadMore, setLoadMore] = useState(false);
+  const [modal, setModal] = useState(false);
+  const [error, setError] = useState(null);
+  const [modalImg, setModalImg] = useState("");
+  const [status, setStatus] = useState("idle");
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    if (query === "") {
+      return;
+    }
+
+    setStatus("pending");
+    setPage(1);
+    setImages([]);
+
+    imageGalleryApi
+      .fetchImages(query, page)
+      .then(({ hits }) => {
+        if (hits.length < 12) {
+          setLoadMore(false);
+        }
+        setImages((prevState) => {
+          return [...prevState, ...hits];
+        });
+        setStatus("resolved");
+        setLoadMore(true);
+      })
+      .catch((error) => {
+        setError(error);
+        setStatus("rejected");
+      })
+      .finally(() => {
+        handleScrollDown();
+      });
+  }, [query, page]);
+
+  const handleOpenModal = (largeImageURL) => {
+    setModalImg(largeImageURL);
+    setModal(true);
   };
 
-  //   componentDidUpdate(prevProps, prevState) {
-  //     if (prevState.query !== this.state.query) {
-  //       this.setState({
-  //         status: "pending",
-  //         page: 1,
-  //         images: [],
-  //       });
-
-  //       const { query, page } = this.state;
-
-  //       this.handleFetchImages(query, page);
-  //     }
-  //   }
-
-  //   handleFetchImages = (query, page) => {
-  //     imageGalleryApi
-  //       .fetchImages(query, page)
-  //       .then(({ hits }) => {
-  //         if (hits.length < 12) {
-  //           this.setState({
-  //             showLoadMore: false,
-  //           });
-  //         }
-
-  //         this.setState((prevState) => ({
-  //           images: [...prevState.images, ...hits],
-  //           status: "resolved",
-  //           page: prevState.page + 1,
-  //           showLoadMore: true,
-  //         }));
-  //       })
-  //       .catch((error) =>
-  //         this.setState({
-  //           error,
-  //           status: "rejected",
-  //         })
-  //       )
-  //       .finally(() => {
-  //         this.handleScrollDown();
-  //       });
-  //   };
-
-  formSubmitHandler = (inputValue) => {
-    this.setState({ query: inputValue });
+  const handleCloseModal = () => {
+    setModal(false);
   };
 
-  //   handleOpenModal = (largeImageURL) => {
-  //     this.setState({
-  //       modalImgUrl: largeImageURL,
-  //       showModal: true,
-  //     });
-  //   };
+  const handleScrollDown = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  };
 
-  //   handleCloseModal = () => {
-  //     this.setState({
-  //       showModal: false,
-  //     });
-  //   };
-
-  //   handleLoadMore = () => {
-  //     const { query, page } = this.state;
-  //     this.handleFetchImages(query, page);
-  //   };
-
-  //   handleScrollDown = () => {
-  //     window.scrollTo({
-  //       top: document.documentElement.scrollHeight,
-  //       behavior: "smooth",
-  //     });
-  //   };
-
-  render() {
-    const { images, status, error, showModal, modalImgUrl } = this.state;
-    const { formSubmitHandler, handleOpenModal, handleCloseModal } = this;
-
-    // if (status === "idle") {
+  if (status === "idle") {
     return (
       <>
-        <Searchbar onSubmit={formSubmitHandler} />
+        <Searchbar onSubmit={setQuery} />
         <ToastContainer autoClose={3000} />
-        {showModal && (
+      </>
+    );
+  }
+
+  if (status === "pending") {
+    return (
+      <>
+        <Searchbar onSubmit={setQuery} />
+        <GalleryLoader />
+      </>
+    );
+  }
+
+  if (status === "rejected") {
+    return (
+      <>
+        <Searchbar onSubmit={setQuery} />
+        <QueryError queryError={error} />
+        <ToastContainer autoClose={3000} />
+      </>
+    );
+  }
+
+  if (status === "resolved") {
+    return (
+      <>
+        <Searchbar onSubmit={setQuery} />
+        <ToastContainer autoClose={3000} />
+        <ImageGallery images={images} onClick={handleOpenModal} />
+        {modal && (
           <Modal onClose={handleCloseModal}>
-            <img src={modalImgUrl} alt="" />
+            <img src={modalImg} alt="" />
           </Modal>
+        )}
+        {loadMore && (
+          <Button onClick={() => setPage((prevPage) => prevPage + 1)} />
         )}
       </>
     );
-    //}
-
-    // if (status === "pending") {
-    //   return (
-    //     <>
-    //       <Searchbar onSubmit={formSubmitHandler} />
-    //       {/* <GalleryLoader /> */}
-    //     </>
-    //   );
-    // }
-
-    // if (status === "rejected") {
-    //   return (
-    //     <>
-    //       <Searchbar onSubmit={formSubmitHandler} />
-    //       {/* <QueryError queryError={error} /> */}
-    //       {/* <ToastContainer autoClose={3000} /> */}
-    //     </>
-    //   );
-    // }
-
-    // if (status === "resolved") {
-    //   return (
-    //     <>
-    //       <Searchbar onSubmit={formSubmitHandler} />
-    // {
-    /* <ImageGallery images={images} onClick={handleOpenModal} />
-          {showModal && (
-            <Modal onClose={handleCloseModal}>
-              <img src={modalImgUrl} alt="" />
-            </Modal>
-          )}
-          <Button onClick={this.handleLoadMore} /> */
-    // }
-    //  {
-    /* <ToastContainer autoClose={3000} /> */
-    //  }
-    // </>
-    //     );
-    //   }
   }
 }
-
-export default App;
