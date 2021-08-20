@@ -39,6 +39,7 @@ build/Release
 
 # Dependency directories
 node_modules/
+.husky/
 jspm_packages/
 
 # TypeScript v1 declaration files
@@ -106,6 +107,7 @@ dist
 
 # dependencies
 /node_modules
+/.husky
 /.pnp
 .pnp.js
 
