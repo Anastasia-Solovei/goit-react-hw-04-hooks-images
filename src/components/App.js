@@ -25,8 +25,6 @@ export default function App() {
     }
 
     setStatus("pending");
-    setPage(1);
-    setImages([]);
 
     imageGalleryApi
       .fetchImages(query, page)
@@ -49,6 +47,12 @@ export default function App() {
       });
   }, [query, page]);
 
+  const formSubmitHandler = (inputValue) => {
+    setQuery(inputValue);
+    setPage(1);
+    setImages([]);
+  };
+
   const handleOpenModal = (largeImageURL) => {
     setModalImg(largeImageURL);
     setModal(true);
@@ -68,7 +72,7 @@ export default function App() {
   if (status === "idle") {
     return (
       <>
-        <Searchbar onSubmit={setQuery} />
+        <Searchbar onSubmit={formSubmitHandler} />
         <ToastContainer autoClose={3000} />
       </>
     );
@@ -77,7 +81,7 @@ export default function App() {
   if (status === "pending") {
     return (
       <>
-        <Searchbar onSubmit={setQuery} />
+        <Searchbar onSubmit={formSubmitHandler} />
         <GalleryLoader />
       </>
     );
@@ -86,7 +90,7 @@ export default function App() {
   if (status === "rejected") {
     return (
       <>
-        <Searchbar onSubmit={setQuery} />
+        <Searchbar onSubmit={formSubmitHandler} />
         <QueryError queryError={error} />
         <ToastContainer autoClose={3000} />
       </>
@@ -96,7 +100,7 @@ export default function App() {
   if (status === "resolved") {
     return (
       <>
-        <Searchbar onSubmit={setQuery} />
+        <Searchbar onSubmit={formSubmitHandler} />
         <ToastContainer autoClose={3000} />
         <ImageGallery images={images} onClick={handleOpenModal} />
         {modal && (
