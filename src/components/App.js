@@ -49,6 +49,7 @@ export default function App() {
     setPage(1);
     setImages([]);
     setLoader(true);
+    setLoadMore(false);
     setError(null);
   };
 
