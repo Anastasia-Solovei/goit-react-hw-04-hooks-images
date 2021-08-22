@@ -17,7 +17,7 @@ export default function App() {
   const [modal, setModal] = useState(false);
   const [error, setError] = useState(null);
   const [modalImg, setModalImg] = useState("");
-  const [status, setStatus] = useState("idle");
+  const [status, setStatus] = useState(" ");
 
   useEffect(() => {
     if (query === "") {
@@ -69,7 +69,7 @@ export default function App() {
     });
   };
 
-  if (status === "idle") {
+  if (status === " ") {
     return (
       <>
         <Searchbar onSubmit={formSubmitHandler} />
@@ -77,6 +77,15 @@ export default function App() {
       </>
     );
   }
+
+  // if (status === "idle") {
+  //   return (
+  //     <>
+  //       {/* <Searchbar onSubmit={formSubmitHandler} /> */}
+  //       {/* <ToastContainer autoClose={3000} /> */}
+  //     </>
+  //   );
+  // }
 
   if (status === "pending") {
     return (
@@ -90,9 +99,9 @@ export default function App() {
   if (status === "rejected") {
     return (
       <>
-        <Searchbar onSubmit={formSubmitHandler} />
+        {/* <Searchbar onSubmit={formSubmitHandler} /> */}
         <QueryError queryError={error} />
-        <ToastContainer autoClose={3000} />
+        {/* <ToastContainer autoClose={3000} /> */}
       </>
     );
   }
@@ -100,8 +109,8 @@ export default function App() {
   if (status === "resolved") {
     return (
       <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <ToastContainer autoClose={3000} />
+        {/* <Searchbar onSubmit={formSubmitHandler} /> */}
+        {/* <ToastContainer autoClose={3000} /> */}
         <ImageGallery images={images} onClick={handleOpenModal} />
         {modal && (
           <Modal onClose={handleCloseModal}>
