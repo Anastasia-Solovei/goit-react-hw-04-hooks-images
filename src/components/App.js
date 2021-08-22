@@ -17,7 +17,7 @@ export default function App() {
   const [modal, setModal] = useState(false);
   const [error, setError] = useState(null);
   const [modalImg, setModalImg] = useState("");
-  const [status, setStatus] = useState(" ");
+  const [status, setStatus] = useState("idle");
 
   useEffect(() => {
     if (query === "") {
@@ -69,58 +69,80 @@ export default function App() {
     });
   };
 
-  if (status === " ") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <ToastContainer autoClose={3000} />
-      </>
-    );
-  }
+  // Ниже представлены 2 варианта return, которые абсолютно одинаково работают
+  //  При каждом нажатии на кнопку loadMore полностью перезагружается галерея,
+  // то есть все картинки галереи исчезают вместо них показывает loader, а потом снова рендерятся
+  // что не оч с точки зрения UX.
+
+  // Нужно чтобы предыдущие картинки оставались на экране, Loader был показан снизу - на том месте где должны
+  // появиться новые картинки.
 
   // if (status === "idle") {
   //   return (
   //     <>
-  //       {/* <Searchbar onSubmit={formSubmitHandler} /> */}
-  //       {/* <ToastContainer autoClose={3000} /> */}
+  //       <Searchbar onSubmit={formSubmitHandler} />
+  //       <ToastContainer autoClose={3000} />
   //     </>
   //   );
   // }
 
-  if (status === "pending") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <GalleryLoader />
-      </>
-    );
-  }
+  // if (status === "pending") {
+  //   return (
+  //     <>
+  //       <Searchbar onSubmit={formSubmitHandler} />
+  //       <GalleryLoader />
+  //     </>
+  //   );
+  // }
 
-  if (status === "rejected") {
-    return (
-      <>
-        {/* <Searchbar onSubmit={formSubmitHandler} /> */}
-        <QueryError queryError={error} />
-        {/* <ToastContainer autoClose={3000} /> */}
-      </>
-    );
-  }
+  // if (status === "rejected") {
+  //   return (
+  //     <>
+  //       <Searchbar onSubmit={formSubmitHandler} />
+  //       <QueryError queryError={error} />
+  //       <ToastContainer autoClose={3000} />
+  //     </>
+  //   );
+  // }
 
-  if (status === "resolved") {
-    return (
-      <>
-        {/* <Searchbar onSubmit={formSubmitHandler} /> */}
-        {/* <ToastContainer autoClose={3000} /> */}
-        <ImageGallery images={images} onClick={handleOpenModal} />
-        {modal && (
-          <Modal onClose={handleCloseModal}>
-            <img src={modalImg} alt="" />
-          </Modal>
-        )}
-        {loadMore && (
-          <Button onClick={() => setPage((prevPage) => prevPage + 1)} />
-        )}
-      </>
-    );
-  }
+  // if (status === "resolved") {
+  //   return (
+  //     <>
+  //       <Searchbar onSubmit={formSubmitHandler} />
+  //       <ToastContainer autoClose={3000} />
+  //       <ImageGallery images={images} onClick={handleOpenModal} />
+  //       {modal && (
+  //         <Modal onClose={handleCloseModal}>
+  //           <img src={modalImg} alt="" />
+  //         </Modal>
+  //       )}
+  //       {loadMore && (
+  //         <Button onClick={() => setPage((prevPage) => prevPage + 1)} />
+  //       )}
+  //     </>
+  //   );
+  // }
+
+  return (
+    <>
+      <Searchbar onSubmit={formSubmitHandler} />
+      <ToastContainer autoClose={3000} />
+
+      {status === "pending" && <GalleryLoader />}
+      {status === "rejected" && <QueryError queryError={error} />}
+      {status === "resolved" && (
+        <>
+          <ImageGallery images={images} onClick={handleOpenModal} />
+          {modal && (
+            <Modal onClose={handleCloseModal}>
+              <img src={modalImg} alt="" />
+            </Modal>
+          )}
+          {loadMore && (
+            <Button onClick={() => setPage((prevPage) => prevPage + 1)} />
+          )}
+        </>
+      )}
+    </>
+  );
 }
