@@ -33,13 +33,11 @@ export default function App() {
         setImages((prevState) => {
           return [...prevState, ...hits];
         });
-        // setLoader(false);
         setLoadMore(true);
         handleScrollDown();
       })
       .catch((error) => {
         setError(error);
-        // setLoader(false);
       })
       .finally(() => {
         setLoader(false);
@@ -75,31 +73,19 @@ export default function App() {
     });
   };
 
-  // const handleOnLoad = () => {
-  //   window.addEventListener("load", () => {
-  //     setLoader(false);
-  //   });
-  // };
-
   return (
     <>
       <Searchbar onSubmit={formSubmitHandler} />
       <ToastContainer autoClose={3000} />
-      {images && (
-        <ImageGallery
-          images={images}
-          onClick={handleOpenModal}
-          //onLoad={() => setLoader(false)}
-        />
-      )}
+      {loader && <GalleryLoader />}
+      {error && <QueryError queryError={error} />}
+      {images && <ImageGallery images={images} onClick={handleOpenModal} />}
       {modal && (
         <Modal onClose={handleCloseModal}>
           <img src={modalImg} alt="" />
         </Modal>
       )}
       {loadMore && <Button onClick={handleLoadMore} />}
-      {loader && <GalleryLoader />}
-      {error && <QueryError queryError={error} />}
     </>
   );
 }
