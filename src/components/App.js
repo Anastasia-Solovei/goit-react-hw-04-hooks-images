@@ -17,14 +17,12 @@ export default function App() {
   const [modal, setModal] = useState(false);
   const [error, setError] = useState(null);
   const [modalImg, setModalImg] = useState("");
-  const [status, setStatus] = useState("idle");
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     if (query === "") {
       return;
     }
-
-    setStatus("pending");
 
     imageGalleryApi
       .fetchImages(query, page)
@@ -35,15 +33,16 @@ export default function App() {
         setImages((prevState) => {
           return [...prevState, ...hits];
         });
-        setStatus("resolved");
+        // setLoader(false);
         setLoadMore(true);
+        handleScrollDown();
       })
       .catch((error) => {
         setError(error);
-        setStatus("rejected");
+        // setLoader(false);
       })
       .finally(() => {
-        handleScrollDown();
+        setLoader(false);
       });
   }, [query, page]);
 
@@ -51,6 +50,8 @@ export default function App() {
     setQuery(inputValue);
     setPage(1);
     setImages([]);
+    setLoader(true);
+    setError(null);
   };
 
   const handleOpenModal = (largeImageURL) => {
@@ -62,6 +63,11 @@ export default function App() {
     setModal(false);
   };
 
+  const handleLoadMore = () => {
+    setPage((prevPage) => prevPage + 1);
+    setLoader(true);
+  };
+
   const handleScrollDown = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
@@ -69,49 +75,31 @@ export default function App() {
     });
   };
 
-  if (status === "idle") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <ToastContainer autoClose={3000} />
-      </>
-    );
-  }
+  // const handleOnLoad = () => {
+  //   window.addEventListener("load", () => {
+  //     setLoader(false);
+  //   });
+  // };
 
-  if (status === "pending") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <GalleryLoader />
-      </>
-    );
-  }
-
-  if (status === "rejected") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <QueryError queryError={error} />
-        <ToastContainer autoClose={3000} />
-      </>
-    );
-  }
-
-  if (status === "resolved") {
-    return (
-      <>
-        <Searchbar onSubmit={formSubmitHandler} />
-        <ToastContainer autoClose={3000} />
-        <ImageGallery images={images} onClick={handleOpenModal} />
-        {modal && (
-          <Modal onClose={handleCloseModal}>
-            <img src={modalImg} alt="" />
-          </Modal>
-        )}
-        {loadMore && (
-          <Button onClick={() => setPage((prevPage) => prevPage + 1)} />
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      <Searchbar onSubmit={formSubmitHandler} />
+      <ToastContainer autoClose={3000} />
+      {images && (
+        <ImageGallery
+          images={images}
+          onClick={handleOpenModal}
+          //onLoad={() => setLoader(false)}
+        />
+      )}
+      {modal && (
+        <Modal onClose={handleCloseModal}>
+          <img src={modalImg} alt="" />
+        </Modal>
+      )}
+      {loadMore && <Button onClick={handleLoadMore} />}
+      {loader && <GalleryLoader />}
+      {error && <QueryError queryError={error} />}
+    </>
+  );
 }
